@@ -23,6 +23,7 @@ Enter your choice :
 
 This challenge is a pizza-topping picker. It contains a list of allowed toppings:
 - Tomato, Onion, Capsicum, Corn, Mushroom, Pineapple, Olives, Double Cheese, Paneer, Chicken
+
 And it lets you add a chosen quantity (up to 63) of any one of these toppings:
 ```
 Enter your choice : 1
