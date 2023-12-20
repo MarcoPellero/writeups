@@ -125,7 +125,26 @@ aleak("libc", libc.address)
 ```
 
 We can also do a double free, first filling the tcache, then triggering the double free, and then empty the tcache and allocate again, which will move the chunks from the fastbin to the tcache. This lets us have the same chunk both allocated and freed at the same time, letting us overwrite its tcache forward pointer and achieve arbitrary allocation.
-I chose to allocate onto the tcache pointer for 0x200 chunks since its counter was 7 from when I leaked libc and that's enough allocations to finish the exploit:
+
+We can actually use this to achieve infinite arbitrary allocations; to understand how here's what the tcache really is (simplified):
+```c
+struct tcache {
+    uint16_t bin_counters[N_BINS];
+    void*    first_chunk [N_BINS];
+};
+```
+
+If you run `bins` via pwndbg to check the tcache, you'll see something like this:
+```c
+tcachebins
+0x60  [  2]: 0x55705a2bf280 —▸ 0x55705a2bf220
+0x200 [  7]: 0x55705a2beea0 —▸ 0x55705a2beca0 —▸ 0x55705a2beaa0 —▸ 0x55705a2be8a0 —▸ 0x55705a2be6a0 —▸ 0x55705a2be4a0 —▸ 0x55705a2be2a0 ◂— 0x0
+```
+
+That counter in the \[brackets\] and the first pointer (leftmost) are taken straight from that struct. And the first pointer, unlike the next ones, is NOT mangled.
+Knowing this, if we allocate on top of this struct we'll be able to modify the counters and pointers by juts editing our topping, so we can just set all the counters to a high number and keep setting the pointer to wherever we wanna go.
+
+I don't need that many allocations, and modifying the counters makes the exploit a little bit more complicated, so i chose to allocate onto the pointer for the 0x200 chunks, since its counter was 7 from when I leaked libc and that's enough allocations to finish the exploit:
 ```python
 addr = (heap + 0x180) ^ ((heap + 0x1000) >> 12)
 
