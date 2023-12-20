@@ -87,7 +87,7 @@ void remove_topping(char** allocated_toppings, char** allowed_toppings, int* siz
     char chosen_topping[15];
     int idx;
 
-	puts("Which topping to remove ?");
+    puts("Which topping to remove ?");
     fgets(chosen_topping, 15, stdin);
     chosen_topping[strcspn(chosen_topping, "\n")] = 0;
     idx = get_index(chosen_topping, allowed_toppings);
