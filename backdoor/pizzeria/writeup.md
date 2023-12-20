@@ -142,7 +142,7 @@ tcachebins
 ```
 
 That counter in the \[brackets\] and the first pointer (leftmost) are taken straight from that struct. And the first pointer, unlike the next ones, is NOT mangled.
-Knowing this, if we allocate on top of this struct we'll be able to modify the counters and pointers by juts editing our topping, so we can just set all the counters to a high number and keep setting the pointer to wherever we wanna go.
+Knowing this, if we allocate on top of this struct we'll be able to modify the counters and pointers by just editing our topping, so we can just set all the counters to a high number and keep setting the pointer to wherever we wanna go.
 
 I don't need that many allocations, and modifying the counters makes the exploit a little bit more complicated, so i chose to allocate onto the pointer for the 0x200 chunks, since its counter was 7 from when I leaked libc and that's enough allocations to finish the exploit:
 ```python
