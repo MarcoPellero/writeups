@@ -114,7 +114,7 @@ struct _IO_FILE_plus
 
 It contains our FILE struct, as well as a pointer to a vtable, which is just a table of function pointers that are called internally for various operations like read, write, puts, gets, seek, sync, close, etc. This is **VERY** important for FILE struct exploitation, it’s what most exploits are based on. FILEs generally use the default vtable (`_IO_FILE_jumps`), here’s what it looks like:
 
-![Untitled](Flipma%20-%20LA%20CTF%202024%2047bdb7145e4c4b2794560779b861042d/Untitled.png)
+![Untitled](assets/vtable.png)
 <div style="page-break-after: always;"></div>
 
 ## First steps
@@ -127,7 +127,7 @@ The vtable pointer is an obvious target since if we move it we can control what 
 
 Internally `puts()` calls `_IO_file_xsputn` (offset 0x38 in the vtable), which just prints N characters and then a newline:
 
-![Untitled](Flipma%20-%20LA%20CTF%202024%2047bdb7145e4c4b2794560779b861042d/Untitled%201.png)
+![Untitled](assets/xsputn.png)
 
 So what offset should we add to this vtable pointer? In challenges of this kind we typically have more control over, for example, its arguments, and that lets us narrow our search, but here we have an extremely broad ‘search space’. I decided to fuzz the vtable pointer to try and see if I could get anything interesting to happen:
 
@@ -223,9 +223,9 @@ We can just expand stdout’s buffer to make it cover `environ` and do the same 
 
 After doing this we know where main’s stack frame is and we can mess with its return pointer. The less we have to mess with the better, let’s see if there’s any usable one_gadgets:
 
-![Untitled](Flipma%20-%20LA%20CTF%202024%2047bdb7145e4c4b2794560779b861042d/Untitled%202.png)
+![Untitled](assets/one_gadget.png)
 
-![Untitled](Flipma%20-%20LA%20CTF%202024%2047bdb7145e4c4b2794560779b861042d/Untitled%203.png)
+![Untitled](assets/context.png)
 
 Perfect! The second gadget’s constraints are already fulfilled.
 
